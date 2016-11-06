@@ -1,0 +1,46 @@
+div(flex-container='column')
+    .card
+        div(class='p+')
+            span.display-block.fs-title.mb {{title}}
+            .divider.divider--dark
+            form.mt(name='signUpForm' novalidate sv-form-val)
+                div(flex-container='column' flex)
+                    div(flex-item='')
+                        lx-text-field(label='{{name}}')
+                            input(type='text'
+                            name='userName'
+                            ng-model='user.userName'
+                            mg-model-options = '{updateOn:"default "blur"}'
+                            sv-unique-username
+                            ng-minlength="3"
+                            ng-maxlength="200"
+                            required="error" )
+                div(flex-container='column')
+                    div(flex-item='')
+                        lx-text-field(label='{{email}}')
+                            input(type='email'
+                            ng-model='user.email'
+                            name='email'
+                            required)
+                div(flex-container='column'  class="mb+")
+                    div(flex-item='')
+                        lx-text-field(label='{{password}}')
+                            input(type='password'
+                            ng-minlength="6"
+                            ng-maxlength="200"
+                            ng-model='user.password'
+                            name='password' required)
+            div(flex-container='column' flex-align='center start')
+                span.dispaly-block.fs-body-2 {{registering}}
+                a.dispaly-block.fs-body-2(style='border-bottom: #393939 1px dotted; line-height:14px; cursor:pointer') {{conditions}}
+        div.bgc-white-1(flex-container='column' flex-align='center start' class='p+')
+            div(flex-container='row' class="mb+")
+                button.btn.btn--s.btn--raised.btn--white(lx-ripple ng-click='createSvetUser()')
+                    i.mdi.mdi-check &nbsp
+                    | {{register}}
+        div.bgc-grey-50(flex-container='row' flex-align='space-between center' class='p+')
+            div.display-block.fs-body-1 {{registered}}  &nbsp
+            div.mdc-text-right
+                button.btn.btn--s.btn--flat.fs-caption.btn--indigo(lx-ripple ui-sref='app.svet-login') {{login}}
+        div.bgc-grey-200(flex-container='row' flex-align='center' class='p+')
+            sv-form-social-buttons
