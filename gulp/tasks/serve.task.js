@@ -30,7 +30,7 @@ module.exports = function (gulp, config, $, args) {
      * serve the development environment
      * --mock: inject mock files
      */
-    gulp.task('serve:dev', ['build:dev', 'nodemon'], function () {
+    gulp.task('serve', ['build:dev', 'nodemon'], function () {
         startBrowserSync(true);
     });
 

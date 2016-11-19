@@ -54,6 +54,7 @@ module.exports = function () {
         js: {
             all: [
                 client.app + '**/*.js',
+                '!' + client.app + 'core/lb-services.js',
                 client.test + '**/*.js',
                 '!' + client.test + 'unit/results/**/*.js',
                 _root + 'gulp/**/*.js',
