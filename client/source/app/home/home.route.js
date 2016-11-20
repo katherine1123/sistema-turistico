@@ -17,7 +17,7 @@
             {
                 state: 'root.home',
                 config: {
-                    url: '/',
+                    url: '/home',
                     views: {
                         'main@': {
                             templateUrl: 'static/home/home.html',

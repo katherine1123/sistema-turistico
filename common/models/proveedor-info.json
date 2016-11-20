@@ -1,0 +1,34 @@
+{
+  "name": "proveedor-info",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "number",
+      "required": true
+    },
+    "proveedor_servicio_id": {
+      "type": "number",
+      "required": true
+    },
+    "imagen": {
+      "type": "string",
+      "required": true
+    },
+    "ubicacion": {
+      "type": "string",
+      "required": true
+    },
+    "precio": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

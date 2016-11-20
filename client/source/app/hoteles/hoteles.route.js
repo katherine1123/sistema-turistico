@@ -17,10 +17,11 @@
             {
                 state: 'root.hoteles',
                 config: {
-                    url: '/hoteles',
+                    url: '/',
                     views: {
                         'main@': {
-                            templateUrl: 'static/hoteles/hoteles.html'
+                            templateUrl: 'static/hoteles/hoteles.html',
+                            controller :'HotelesController as vm'
                         },
                         'sidebar@': {},
                         'breadcrumb@': {}

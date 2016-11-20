@@ -6,8 +6,8 @@
         .config(appConfig);
 
     var config = {
-        appErrorPrefix: '[Aio Error] ',
-        appTitle: 'Aio'
+        appErrorPrefix: '[kat] ',
+        appTitle: 'Viajemos'
     };
 
     appConfig.$inject = ['routerHelperProvider'];
