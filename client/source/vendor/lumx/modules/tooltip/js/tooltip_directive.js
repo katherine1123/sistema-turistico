@@ -1,69 +1,115 @@
-/* global angular */
-'use strict'; // jshint ignore:line
+(function()
+{
+    'use strict';
 
+    angular
+        .module('lumx.tooltip')
+        .directive('lxTooltip', lxTooltip);
 
-angular.module('lumx.tooltip', [])
-    .controller('LxTooltipController', ['$scope', '$timeout', function($scope, $timeout)
+    function lxTooltip()
     {
-        var self = this,
-            tooltip,
-            tooltipContent,
-            tooltipPosition,
-            tooltipColor,
-            tooltipLabel,
-            tooltipBackground,
-            tooltipTrigger;
-
-        this.init = function(element, attrs)
-        {
-            tooltipTrigger = element;
-
-            tooltipContent = attrs.lxTooltip;
-            tooltipPosition = angular.isDefined(attrs.tooltipPosition) ? attrs.tooltipPosition : 'top';
-            tooltipColor = angular.isDefined(attrs.tooltipColor) ? attrs.tooltipColor : 'black';
-
-            tooltip = angular.element('<div/>',
+        return {
+            restrict: 'A',
+            scope:
             {
-                class: 'tooltip tooltip--' + tooltipPosition + ' tooltip--' + tooltipColor
-            });
-
-            tooltipBackground = angular.element('<div/>',
-            {
-                class: 'tooltip__background'
-            });
-
-            tooltipLabel = angular.element('<span/>',
-            {
-                class: 'tooltip__label',
-                text: tooltipContent
-            });
-
-            tooltipTrigger
-                .bind('mouseenter', function()
-                {
-                    self.showTooltip();
-                });
-
-            tooltipTrigger
-                .bind('mouseleave', function()
-                {
-                    self.hideTooltip();
-                });
+                tooltip: '@lxTooltip',
+                position: '@?lxTooltipPosition'
+            },
+            link: link,
+            controller: LxTooltipController,
+            controllerAs: 'lxTooltip',
+            bindToController: true
         };
 
-        this.showTooltip = function()
+        function link(scope, element, attrs, ctrl)
         {
-            var width = tooltipTrigger.outerWidth(),
-                height = tooltipTrigger.outerHeight(),
-                top = tooltipTrigger.offset().top,
-                left = tooltipTrigger.offset().left;
+            if (angular.isDefined(attrs.lxTooltip))
+            {
+                attrs.$observe('lxTooltip', function(newValue)
+                {
+                    ctrl.updateTooltipText(newValue);
+                });
+            }
+
+            if (angular.isDefined(attrs.lxTooltipPosition))
+            {
+                attrs.$observe('lxTooltipPosition', function(newValue)
+                {
+                    scope.lxTooltip.position = newValue;
+                });
+            }
+
+            element.on('mouseenter', ctrl.showTooltip);
+            element.on('mouseleave', ctrl.hideTooltip);
+
+            scope.$on('$destroy', function()
+            {
+                element.off();
+            });
+        }
+    }
+
+    LxTooltipController.$inject = ['$element', '$scope', '$timeout', 'LxDepthService'];
+
+    function LxTooltipController($element, $scope, $timeout, LxDepthService)
+    {
+        var lxTooltip = this;
+        var timer1;
+        var timer2;
+        var tooltip;
+        var tooltipBackground;
+        var tooltipLabel;
+
+        lxTooltip.hideTooltip = hideTooltip;
+        lxTooltip.showTooltip = showTooltip;
+        lxTooltip.updateTooltipText = updateTooltipText;
+
+        lxTooltip.position = angular.isDefined(lxTooltip.position) ? lxTooltip.position : 'top';
+
+        $scope.$on('$destroy', function()
+        {
+            if (angular.isDefined(tooltip))
+            {
+                tooltip.remove();
+                tooltip = undefined;
+            }
+
+            $timeout.cancel(timer1);
+            $timeout.cancel(timer2);
+        });
+
+        ////////////
+
+        function hideTooltip()
+        {
+            if (angular.isDefined(tooltip))
+            {
+                tooltip.removeClass('tooltip--is-active');
+
+                timer1 = $timeout(function()
+                {
+                    if (angular.isDefined(tooltip))
+                    {
+                        tooltip.remove();
+                        tooltip = undefined;
+                    }
+                }, 200);
+            }
+        }
+
+        function setTooltipPosition()
+        {
+            var width = $element.outerWidth(),
+                height = $element.outerHeight(),
+                top = $element.offset().top,
+                left = $element.offset().left;
 
             tooltip
                 .append(tooltipBackground)
                 .append(tooltipLabel)
                 .appendTo('body');
 
-            if (tooltipPosition === 'top')
+            if (lxTooltip.position === 'top')
             {
                 tooltip.css(
                 {
@@ -71,7 +117,7 @@ angular.module('lumx.tooltip', [])
                     top: top - tooltip.outerHeight()
                 });
             }
-            else if (tooltipPosition === 'bottom')
+            else if (lxTooltip.position === 'bottom')
             {
                 tooltip.css(
                 {
@@ -79,7 +125,7 @@ angular.module('lumx.tooltip', [])
                     top: top + height
                 });
             }
-            else if (tooltipPosition === 'left')
+            else if (lxTooltip.position === 'left')
             {
                 tooltip.css(
                 {
@@ -87,7 +133,7 @@ angular.module('lumx.tooltip', [])
                     top: top + (height / 2) - (tooltip.outerHeight() / 2)
                 });
             }
-            else if (tooltipPosition === 'right')
+            else if (lxTooltip.position === 'right')
             {
                 tooltip.css(
                 {
@@ -95,39 +141,51 @@ angular.module('lumx.tooltip', [])
                     top: top + (height / 2) - (tooltip.outerHeight() / 2)
                 });
             }
+        }
 
-            tooltip.addClass('tooltip--is-active');
-        };
-
-        this.hideTooltip = function()
+        function showTooltip()
         {
-            tooltip.removeClass('tooltip--is-active');
-
-            $timeout(function()
+            if (angular.isUndefined(tooltip))
             {
-                tooltip.remove();
-            }, 200);
-        };
+                LxDepthService.register();
 
-        $scope.$on('$destroy', function(scope)
-        {
-            tooltip.remove();
-        });
-    }])
-    .directive('lxTooltip', function()
-    {
-        return {
-            restrict: 'A',
-            controller: 'LxTooltipController',
-            link: function(scope, element, attrs, ctrl)
-            {
-                attrs.$observe('lxTooltip', function()
+                tooltip = angular.element('<div/>',
                 {
-                    if (attrs.lxTooltip)
-                    {
-                        ctrl.init(element, attrs);
-                    }
+                    class: 'tooltip tooltip--' + lxTooltip.position
+                });
+
+                tooltipBackground = angular.element('<div/>',
+                {
+                    class: 'tooltip__background'
+                });
+
+                tooltipLabel = angular.element('<span/>',
+                {
+                    class: 'tooltip__label',
+                    text: lxTooltip.tooltip
+                });
+
+                setTooltipPosition();
+
+                tooltip
+                    .append(tooltipBackground)
+                    .append(tooltipLabel)
+                    .css('z-index', LxDepthService.getDepth())
+                    .appendTo('body');
+
+                timer2 = $timeout(function()
+                {
+                    tooltip.addClass('tooltip--is-active');
                 });
             }
-        };
-    });
+        }
+
+        function updateTooltipText(_newValue)
+        {
+            if (angular.isDefined(tooltipLabel))
+            {
+                tooltipLabel.text(_newValue);
+            }
+        }
+    }
+})();

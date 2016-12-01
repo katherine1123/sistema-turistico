@@ -2,59 +2,30 @@
     'use strict';
 
     angular
-        .module('app.login')
-        .controller('LoginController', LoginController);
+            .module('app.login')
+            .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['userAPI', '$state', '$timeout'];
+    LoginController.$inject = ['$state', '$timeout', 'Usuario', 'LxNotificationService'];
     /* @ngInject */
-    function LoginController (userAPI, $state, $timeout) {
+    function LoginController ($state, $timeout, Usuario, LxNotificationService) {
         var vm = this;
 
         vm.login = login;
-
-        var _routeAfterLogin = 'root.dashboard';
-
-        init();
-
-        ////////////
-
-        function init () {
-            // handle logout
-            var action = $state.params.action;
-            if (action === 'logout') {
-                vm.needCheckLogin = false;
-                userAPI.logout()
-                    .then(function () {
-                        _setError('success', 'You have been successfully logged out!');
-                    });
-            } else {
-                vm.userInfo = null;
-                vm.needCheckLogin = true;
-                // check login status firstly
-                userAPI.checkLoggedInStatus()
-                    .then(function (data) {
-                        vm.userInfo = data;
-                        $timeout(function () {
-                            $state.go(_routeAfterLogin);
-                        }, 1000);
-                    })
-                    .catch(function () {
-                        vm.needCheckLogin = false;
-                    });
-            }
-        }
+        vm.irRegistrarse = function () {
+            $state.go('root.registrar');
+        };
+        var _routeAfterLogin = 'root.hoteles';
 
         function login (credential) {
             if (vm.loginForm.$invalid) {
                 return;
             }
             vm.isRequest = true;
-            userAPI.login(credential.email, credential.password)
-                .then(_success)
-                .catch(_error);
-
+            Usuario.ingresar(vm.credential, _success, _error);
             function _success (data) {
                 vm.loginError = null;
+                localStorage.usuario = JSON.stringify(data);
+                LxNotificationService.success('Bienvenido ' + data.nombre);
                 // user was redirect to login page
                 if ($state.prev) {
                     $state.go($state.prev.state, $state.prev.params);

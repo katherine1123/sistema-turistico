@@ -3,7 +3,16 @@
 //\*------------------------------------*/
 
 // Checkbox base styles
-.checkbox {}
+.checkbox {
+    min-width: $size-xs;
+    min-height: $size-xs;
+}
+
+@each $key, $color in $colors {
+    .checkbox--#{$key} .checkbox__label:after {
+        color: $color;
+    }
+}
 
     // Checkbox input
     .checkbox__input {
@@ -12,11 +21,11 @@
         &:not(:checked) {
             & + .checkbox__label {
                 &:before {
-                    @include transform(scale(1));
+                    opacity: 1;
                 }
 
                 &:after {
-                    @include transform(scale(0));
+                    opacity: 0;
                 }
             }
         }
@@ -24,11 +33,11 @@
         &:checked {
             & + .checkbox__label {
                 &:before {
-                    @include transform(scale(0));
+                    opacity: 0;
                 }
 
                 &:after {
-                    @include transform(scale(1));
+                    opacity: 1;
                 }
             }
         }
@@ -37,10 +46,15 @@
             & + .checkbox__label {
                 cursor: not-allowed;
 
+                &,
                 &:before,
                 &:after {
                     color: $black-3;
                 }
+            }
+
+            & ~ .checkbox__help {
+                color: $black-3;
             }
         }
     }
@@ -55,23 +69,28 @@
         cursor: pointer;
         @include user-select(none);
 
+        .checkbox--standalone & {
+            padding-left: 0;
+        }
+
         &:before,
         &:after {
             @include mdi;
             @include position(absolute, 0 null null 0);
             @include font-size($size-xs);
             line-height: $size-xs;
-            @include transition-property(transform);
+            @include transition-property(opacity);
             @include transition-duration(0.2s);
         }
 
         &:before {
-            content: '\f1d6';
+            @include mdi-icon('checkbox-blank-outline');
+            color: $black-2;
         }
 
         &:after {
-            content: '\f1d7';
-            color: $teal-500;
+            @include mdi-icon('checkbox-marked');
+            color: $accent;
         }
     }
 
@@ -79,7 +98,7 @@
     .checkbox__help {
         display: block;
         padding-left: $base-spacing-unit * 4;
-        @extend %fs-caption;
+        @include typography('body-1');
         color: $black-2;
         text-align: left;
     }

@@ -9,7 +9,8 @@
         'app.login',
         'app.dashboard',
         'app.phone',
-        'app.hoteles'
+        'app.hoteles',
+        'app.registrar'
     ]);
 
 })();

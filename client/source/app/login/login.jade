@@ -11,11 +11,14 @@
             lx-text-field(label="Email", fixed-label="true", icon="email")
                 input(type="email", ng-model="vm.credential.email", required, aio-focus-me="true")
             lx-text-field(label="Contraseña", fixed-label="true", icon="key")
-                input(type="password", ng-model="vm.credential.password", required)
+                input(type="password", ng-model="vm.credential.contrasena", required)
         .card__actions.text-center(class="p+")
             button.btn.btn--l.btn--blue.btn--raised.btn-login(type="submit",
                 ng-disabled="vm.loginForm.$invalid || vm.isRequest",
                 ng-class="{'btn--is-disabled': vm.loginForm.$invalid}",
                 lx-ripple,
                 aio-loading-button="vm.isRequest",
-            ) Sign In
+            ) Ingresar
+            button.btn.btn--l.btn--green.btn--raised.btn-login(lx-ripple,
+                ng-click="vm.irRegistrarse()"
+            ) Registrarse

@@ -13,20 +13,21 @@
                         ng-maxlength="200"
                         required="error" )
                 div(flex-item='4' class='p+')
-                    a.btn.btn--green.btn--l.btn--raised(class="", ui-sref="root.login", lx-ripple="white") Get Started
+                    a.btn.btn--blue.btn--l.btn--raised(class="", ui-sref="root.login", lx-ripple="white") Buscar
     br                
-    .card.text-center(class="p+++")
-        div(ng-repeat="hotel in listaHoteles")
+    .card.text-center(class="p+++" ng-repeat="hotel in listaHoteles")
+        div
             .card
               div(flex-container='row')
                 .card__img.card__img--left(style='height: 160px')
-                    img(ng-src="{{hotel.imagen}}")
+                    img(ng-src="{{hotel.imagen}}" style='width: 250px;')
                 div(flex-item='', flex-container='column')
                   div(flex-item='')
                     .div(class='p+')
                       strong.text-left.fs-headline.display-block {{hotel.nombre}}
                       span.text-left.fs-subhead.tc-black-2.display-block {{hotel.ubicacion}}
-                      span.text-left.fs-subhead.color-azul.display-block Desde: {{hotel.precio}}
-                  .card__actions.text-center
-                    a.btn.btn--green.btn--l.btn--raised(ng-click="verHotel(hotel)") Ver detalles
+                      span.text-left.fs-subhead.color-azul.display-block Desde: S/.{{hotel.precio}}
+                  .card__actions.text-left
+                    a.btn.btn--blue.btn--l.btn--raised(ng-click="verHotel(hotel)") Ver detalles
+                    a.btn.m-l-5.btn--blue.btn--l.btn--raised(ng-click="reservar(hotel)") Reservar
 

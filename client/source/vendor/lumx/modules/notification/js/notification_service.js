@@ -1,54 +1,40 @@
-/* global angular */
-/* global window */
-'use strict'; // jshint ignore:line
+(function()
+{
+    'use strict';
 
+    angular
+        .module('lumx.notification')
+        .service('LxNotificationService', LxNotificationService);
 
-angular.module('lumx.notification', [])
-    .service('LxNotificationService', ['$injector', '$rootScope', '$timeout' , function($injector, $rootScope, $timeout)
+    LxNotificationService.$inject = ['$injector', '$interval', '$rootScope', '$timeout', 'LxDepthService', 'LxEventSchedulerService'];
+
+    function LxNotificationService($injector, $interval, $rootScope, $timeout, LxDepthService, LxEventSchedulerService)
     {
-        //
-        // PRIVATE MEMBERS
-        //
-        var notificationList = [],
-            dialogFilter,
-            dialog;
+        var service = this;
+        var dialogFilter;
+        var dialog;
+        var idEventScheduler;
+        var notificationList = [];
+
+        service.alert = showAlertDialog;
+        service.confirm = showConfirmDialog;
+        service.error = notifyError;
+        service.info = notifyInfo;
+        service.notify = notify;
+        service.success = notifySuccess;
+        service.warning = notifyWarning;
+
+        ////////////
 
         //
         // NOTIFICATION
         //
 
-        // private
-        function getElementHeight(elem)
+        function deleteNotification(_notification)
         {
-            return parseFloat(window.getComputedStyle(elem, null).height);
-        }
+            var notifIndex = notificationList.indexOf(_notification);
 
-        // private
-        function moveNotificationUp()
-        {
-            var newNotifIndex = notificationList.length - 1;
-            notificationList[newNotifIndex].height = getElementHeight(notificationList[newNotifIndex].elem[0]);
-            
-            var upOffset = 0;
-            
-            for (var idx = newNotifIndex; idx >= 0; idx--)
-            {
-                if (notificationList.length > 1 && idx !== newNotifIndex)
-                {
-                    upOffset = 24 + notificationList[newNotifIndex].height;
-                    
-                    notificationList[idx].margin += upOffset;
-                    notificationList[idx].elem.css('marginBottom', notificationList[idx].margin + 'px');
-                }
-            }
-        }
-
-        // private
-        function deleteNotification(notification)
-        {
-            var notifIndex = notificationList.indexOf(notification);
-            
-            var dnOffset = 24 + notificationList[notifIndex].height;
+            var dnOffset = angular.isDefined(notificationList[notifIndex]) ? 24 + notificationList[notifIndex].height : 24;
 
             for (var idx = 0; idx < notifIndex; idx++)
             {
@@ -59,26 +45,66 @@ angular.module('lumx.notification', [])
                 }
             }
 
-            notification.elem.remove();
-            notificationList.splice(notifIndex, 1);
+            _notification.elem.removeClass('notification--is-shown');
+
+            $timeout(function()
+            {
+                _notification.elem.remove();
+
+                // Find index again because notificationList may have changed
+                notifIndex = notificationList.indexOf(_notification);
+
+                if (notifIndex != -1)
+                {
+                    notificationList.splice(notifIndex, 1);
+                }
+            }, 400);
         }
 
-        function notify(text, icon, sticky, color)
+        function getElementHeight(_elem)
         {
-            var notificationTimeout;
-            var notification = angular.element('<div/>', {
+            return parseFloat(window.getComputedStyle(_elem, null).height);
+        }
+
+        function moveNotificationUp()
+        {
+            var newNotifIndex = notificationList.length - 1;
+            notificationList[newNotifIndex].height = getElementHeight(notificationList[newNotifIndex].elem[0]);
+
+            var upOffset = 0;
+
+            for (var idx = newNotifIndex; idx >= 0; idx--)
+            {
+                if (notificationList.length > 1 && idx !== newNotifIndex)
+                {
+                    upOffset = 24 + notificationList[newNotifIndex].height;
+
+                    notificationList[idx].margin += upOffset;
+                    notificationList[idx].elem.css('marginBottom', notificationList[idx].margin + 'px');
+                }
+            }
+        }
+
+        function notify(_text, _icon, _sticky, _color)
+        {
+            LxDepthService.register();
+
+            var notification = angular.element('<div/>',
+            {
                 class: 'notification'
             });
-
-            var notificationText = angular.element('<span/>', {
-                class: 'notification__content',
-                text: text
-            });
-
-            if (angular.isDefined(icon))
+            var notificationText = angular.element('<span/>',
             {
-                var notificationIcon = angular.element('<i/>', {
-                    class: 'notification__icon mdi mdi-' + icon
+                class: 'notification__content',
+                html: _text
+            });
+            var notificationTimeout;
+
+            if (angular.isDefined(_icon))
+            {
+                var notificationIcon = angular.element('<i/>',
+                {
+                    class: 'notification__icon mdi mdi-' + _icon
                 });
 
                 notification
@@ -86,16 +112,25 @@ angular.module('lumx.notification', [])
                     .append(notificationIcon);
             }
 
-            if (angular.isDefined(color))
+            if (angular.isDefined(_color))
             {
-                notification.addClass('notification--' + color);
+                notification.addClass('notification--' + _color);
             }
 
             notification
                 .append(notificationText)
+                .css('z-index', LxDepthService.getDepth())
                 .appendTo('body');
 
-            var data = { elem: notification, margin: 0 };
+            $timeout(function()
+            {
+                notification.addClass('notification--is-shown');
+            }, 100);
+
+            var data = {
+                elem: notification,
+                margin: 0
+            };
             notificationList.push(data);
             moveNotificationUp();
 
@@ -103,200 +138,149 @@ angular.module('lumx.notification', [])
             {
                 deleteNotification(data);
 
-                if(angular.isDefined(notificationTimeout))
+                if (angular.isDefined(notificationTimeout))
                 {
                     $timeout.cancel(notificationTimeout);
                 }
             });
 
-            if (angular.isUndefined(sticky) || !sticky)
+            if (angular.isUndefined(_sticky) || !_sticky)
             {
-                notificationTimeout = $timeout(function()
+                notificationTimeout = $interval(function()
                 {
                     deleteNotification(data);
-                }, 6000);
+                }, 6000, 1);
             }
         }
 
-        function success(text, sticky)
+        function notifyError(_text, _sticky)
         {
-            notify(text, 'check', sticky, 'green');
+            notify(_text, 'alert-circle', _sticky, 'red');
         }
 
-        function error(text, sticky)
+        function notifyInfo(_text, _sticky)
         {
-            notify(text, 'alert-circle', sticky, 'red');
+            notify(_text, 'information-outline', _sticky, 'blue');
         }
 
-        function warning(text, sticky)
+        function notifySuccess(_text, _sticky)
         {
-            notify(text, 'alert', sticky, 'orange');
+            notify(_text, 'check', _sticky, 'green');
         }
 
-        function info(text, sticky)
+        function notifyWarning(_text, _sticky)
         {
-            notify(text, 'information-outline', sticky, 'blue');
+            notify(_text, 'alert', _sticky, 'orange');
         }
-
 
         //
         // ALERT & CONFIRM
         //
 
-        // private
-        function buildDialogHeader(title)
+        function buildDialogActions(_buttons, _callback, _unbind)
         {
-            // DOM elements
-            var dialogHeader = angular.element('<div/>', {
-                class: 'dialog__header p++ fs-title',
-                text: title
+            var $compile = $injector.get('$compile');
+
+            var dialogActions = angular.element('<div/>',
+            {
+                class: 'dialog__actions'
             });
 
-            return dialogHeader;
+            var dialogLastBtn = angular.element('<button/>',
+            {
+                class: 'btn btn--m btn--blue btn--flat',
+                text: _buttons.ok
+            });
+
+            if (angular.isDefined(_buttons.cancel))
+            {
+                var dialogFirstBtn = angular.element('<button/>',
+                {
+                    class: 'btn btn--m btn--red btn--flat',
+                    text: _buttons.cancel
+                });
+
+                dialogFirstBtn.attr('lx-ripple', '');
+                $compile(dialogFirstBtn)($rootScope);
+
+                dialogActions.append(dialogFirstBtn);
+
+                dialogFirstBtn.bind('click', function()
+                {
+                    _callback(false);
+                    closeDialog();
+                });
+            }
+
+            dialogLastBtn.attr('lx-ripple', '');
+            $compile(dialogLastBtn)($rootScope);
+
+            dialogActions.append(dialogLastBtn);
+
+            dialogLastBtn.bind('click', function()
+            {
+                _callback(true);
+                closeDialog();
+            });
+
+            if (!_unbind)
+            {
+                idEventScheduler = LxEventSchedulerService.register('keyup', function(event)
+                {
+                    if (event.keyCode == 13)
+                    {
+                        _callback(true);
+                        closeDialog();
+                    }
+                    else if (event.keyCode == 27)
+                    {
+                        _callback(angular.isUndefined(_buttons.cancel));
+                        closeDialog();
+                    }
+
+                    event.stopPropagation();
+                });
+            }
+
+            return dialogActions;
         }
 
-        // private
-        function buildDialogContent(text)
+        function buildDialogContent(_text)
         {
-            // DOM elements
-            var dialogContent = angular.element('<div/>', {
+            var dialogContent = angular.element('<div/>',
+            {
                 class: 'dialog__content p++ pt0 tc-black-2',
-                text: text
+                text: _text
             });
 
             return dialogContent;
         }
 
-        // private
-        function buildDialogActions(buttons, callback)
+        function buildDialogHeader(_title)
         {
-            var $compile = $injector.get('$compile');
-
-            // DOM elements
-            var dialogActions = angular.element('<div/>', {
-                class: 'dialog__actions'
-            });
-
-            var dialogLastBtn = angular.element('<button/>', {
-                class: 'btn btn--m btn--blue btn--flat',
-                text: buttons.ok
-            });
-
-            // Cancel button
-            if (angular.isDefined(buttons.cancel))
+            var dialogHeader = angular.element('<div/>',
             {
-                // DOM elements
-                var dialogFirstBtn = angular.element('<button/>', {
-                    class: 'btn btn--m btn--red btn--flat',
-                    text: buttons.cancel
-                });
-
-                // Compilation
-                dialogFirstBtn.attr('lx-ripple', '');
-                $compile(dialogFirstBtn)($rootScope);
-
-                // DOM link
-                dialogActions.append(dialogFirstBtn);
-
-                // Event management
-                dialogFirstBtn.bind('click', function()
-                {
-                    callback(false);
-                    closeDialog();
-                });
-            }
-
-            // Compilation
-            dialogLastBtn.attr('lx-ripple', '');
-            $compile(dialogLastBtn)($rootScope);
-
-            // DOM link
-            dialogActions.append(dialogLastBtn);
-
-            // Event management
-            dialogLastBtn.bind('click', function()
-            {
-                callback(true);
-                closeDialog();
+                class: 'dialog__header p++ fs-title',
+                text: _title
             });
 
-            return dialogActions;
+            return dialogHeader;
         }
 
-        function confirm(title, text, buttons, callback)
-        {
-            // DOM elements
-            dialogFilter = angular.element('<div/>', {
-                class: 'dialog-filter'
-            });
-
-            dialog = angular.element('<div/>', {
-                class: 'dialog dialog--alert'
-            });
-
-            var dialogHeader = buildDialogHeader(title);
-            var dialogContent = buildDialogContent(text);
-            var dialogActions = buildDialogActions(buttons, callback);
-
-            // DOM link
-            dialogFilter.appendTo('body');
-
-            dialog
-                .append(dialogHeader)
-                .append(dialogContent)
-                .append(dialogActions)
-                .appendTo('body')
-                .show();
-
-            // Starting animaton
-            $timeout(function()
-            {
-                dialogFilter.addClass('dialog-filter--is-shown');
-                dialog.addClass('dialog--is-shown');
-            }, 100);
-        }
-
-        function alert(title, text, button, callback)
-        {
-            // DOM elements
-            dialogFilter = angular.element('<div/>', {
-                class: 'dialog-filter'
-            });
-
-            dialog = angular.element('<div/>', {
-                class: 'dialog dialog--alert'
-            });
-
-            var dialogHeader = buildDialogHeader(title);
-            var dialogContent = buildDialogContent(text);
-            var dialogActions = buildDialogActions({ ok: button }, callback);
-
-            // DOM link
-            dialogFilter.appendTo('body');
-
-            dialog
-                .append(dialogHeader)
-                .append(dialogContent)
-                .append(dialogActions)
-                .appendTo('body')
-                .show();
-
-            // Starting animaton
-            $timeout(function()
-            {
-                dialogFilter.addClass('dialog-filter--is-shown');
-                dialog.addClass('dialog--is-shown');
-            }, 100);
-        }
-
-        // private
         function closeDialog()
         {
-            // Starting animaton
+            if (angular.isDefined(idEventScheduler))
+            {
+                $timeout(function()
+                {
+                    LxEventSchedulerService.unregister(idEventScheduler);
+                    idEventScheduler = undefined;
+                }, 1);
+            }
+
             dialogFilter.removeClass('dialog-filter--is-shown');
             dialog.removeClass('dialog--is-shown');
 
-            // After animaton
             $timeout(function()
             {
                 dialogFilter.remove();
@@ -304,14 +288,87 @@ angular.module('lumx.notification', [])
             }, 600);
         }
 
-        // Public API
-        return {
-            alert: alert,
-            confirm: confirm,
-            error: error,
-            info: info,
-            notify: notify,
-            success: success,
-            warning: warning
-        };
-    }]);
+        function showAlertDialog(_title, _text, _button, _callback, _unbind)
+        {
+            LxDepthService.register();
+
+            dialogFilter = angular.element('<div/>',
+            {
+                class: 'dialog-filter'
+            });
+
+            dialog = angular.element('<div/>',
+            {
+                class: 'dialog dialog--alert'
+            });
+
+            var dialogHeader = buildDialogHeader(_title);
+            var dialogContent = buildDialogContent(_text);
+            var dialogActions = buildDialogActions(
+            {
+                ok: _button
+            }, _callback, _unbind);
+
+            dialogFilter
+                .css('z-index', LxDepthService.getDepth())
+                .appendTo('body');
+
+            dialog
+                .append(dialogHeader)
+                .append(dialogContent)
+                .append(dialogActions)
+                .css('z-index', LxDepthService.getDepth() + 1)
+                .appendTo('body')
+                .show()
+                .focus();
+
+            $timeout(function()
+            {
+                angular.element(document.activeElement).blur();
+
+                dialogFilter.addClass('dialog-filter--is-shown');
+                dialog.addClass('dialog--is-shown');
+            }, 100);
+        }
+
+        function showConfirmDialog(_title, _text, _buttons, _callback, _unbind)
+        {
+            LxDepthService.register();
+
+            dialogFilter = angular.element('<div/>',
+            {
+                class: 'dialog-filter'
+            });
+
+            dialog = angular.element('<div/>',
+            {
+                class: 'dialog dialog--alert'
+            });
+
+            var dialogHeader = buildDialogHeader(_title);
+            var dialogContent = buildDialogContent(_text);
+            var dialogActions = buildDialogActions(_buttons, _callback, _unbind);
+
+            dialogFilter
+                .css('z-index', LxDepthService.getDepth())
+                .appendTo('body');
+
+            dialog
+                .append(dialogHeader)
+                .append(dialogContent)
+                .append(dialogActions)
+                .css('z-index', LxDepthService.getDepth() + 1)
+                .appendTo('body')
+                .show()
+                .focus();
+
+            $timeout(function()
+            {
+                angular.element(document.activeElement).blur();
+
+                dialogFilter.addClass('dialog-filter--is-shown');
+                dialog.addClass('dialog--is-shown');
+            }, 100);
+        }
+    }
+})();

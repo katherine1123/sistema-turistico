@@ -58,5 +58,9 @@
   "proveedor-info": {
     "dataSource": "stmysql",
     "public": true
+  },
+  "usuario": {
+    "dataSource": "stmysql",
+    "public": true
   }
 }

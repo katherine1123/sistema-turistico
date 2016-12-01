@@ -1,395 +1,616 @@
-/* global angular */
-'use strict'; // jshint ignore:line
+(function()
+{
+    'use strict';
 
+    angular
+        .module('lumx.dropdown')
+        .directive('lxDropdown', lxDropdown)
+        .directive('lxDropdownToggle', lxDropdownToggle)
+        .directive('lxDropdownMenu', lxDropdownMenu)
+        .directive('lxDropdownFilter', lxDropdownFilter);
 
-angular.module('lumx.dropdown', [])
-    .service('LxDropdownService', ['$document', function($document)
+    lxDropdown.$inject = ['$document', '$timeout'];
+
+    function lxDropdown($document, $timeout)
     {
-        var openScope = null;
-
-        function open(dropdownScope)
-        {
-            if (!openScope)
-            {
-                $document.bind('click', closeDropdown);
-            }
-
-            if (openScope && openScope !== dropdownScope)
-            {
-                openScope.isOpened = false;
-            }
-
-            openScope = dropdownScope;
-        }
-
-        function close(dropdownScope)
-        {
-            if (openScope === dropdownScope)
-            {
-                openScope = null;
-                $document.unbind('click', closeDropdown);
-            }
-        }
-
-        function closeDropdown()
-        {
-            if (!openScope) { return; }
-
-            openScope.$apply(function()
-            {
-                openScope.isOpened = false;
-            });
-        }
-
         return {
-            open: open,
-            close: close
+            restrict: 'E',
+            templateUrl: 'dropdown.html',
+            scope:
+            {
+                effect: '@?lxEffect',
+                escapeClose: '=?lxEscapeClose',
+                hover: '=?lxHover',
+                hoverDelay: '=?lxHoverDelay',
+                offset: '@?lxOffset',
+                overToggle: '=?lxOverToggle',
+                position: '@?lxPosition',
+                width: '@?lxWidth'
+            },
+            link: link,
+            controller: LxDropdownController,
+            controllerAs: 'lxDropdown',
+            bindToController: true,
+            transclude: true
         };
-    }])
-    .controller('LxDropdownController', ['$scope', '$timeout', '$window', 'LxDropdownService', function($scope, $timeout, $window, LxDropdownService)
+
+        function link(scope, element, attrs, ctrl)
+        {
+            var backwardOneWay = ['position', 'width'];
+            var backwardTwoWay = ['escapeClose', 'overToggle'];
+            var timer;
+
+            angular.forEach(backwardOneWay, function(attribute)
+            {
+                if (angular.isDefined(attrs[attribute]))
+                {
+                    attrs.$observe(attribute, function(newValue)
+                    {
+                        scope.lxDropdown[attribute] = newValue;
+                    });
+                }
+            });
+
+            angular.forEach(backwardTwoWay, function(attribute)
+            {
+                if (angular.isDefined(attrs[attribute]))
+                {
+                    scope.$watch(function()
+                    {
+                        return scope.$parent.$eval(attrs[attribute]);
+                    }, function(newValue)
+                    {
+                        scope.lxDropdown[attribute] = newValue;
+                    });
+                }
+            });
+
+            attrs.$observe('id', function(_newId)
+            {
+                ctrl.uuid = _newId;
+            });
+
+            scope.$on('$destroy', function()
+            {
+                if (ctrl.isOpen)
+                {
+                    ctrl.closeDropdownMenu();
+                }
+
+                $timeout.cancel(timer);
+            });
+        }
+    }
+
+    LxDropdownController.$inject = ['$element', '$scope', '$timeout', '$window', 'LxDepthService', 'LxDropdownService',
+        'LxEventSchedulerService', 'LxUtils'
+    ];
+
+    function LxDropdownController($element, $scope, $timeout, $window, LxDepthService, LxDropdownService,
+        LxEventSchedulerService, LxUtils)
     {
-        var dropdown,
-            dropdownMenu;
-        var dropdownMenuHeight;
+        var lxDropdown = this;
+        var dropdownMenu;
+        var dropdownToggle;
+        var idEventScheduler;
+        var timer;
 
-        $scope.isOpened = false;
-        $scope.isDropped = false;
+        lxDropdown.closeDropdownMenu = closeDropdownMenu;
+        lxDropdown.openDropdownMenu = openDropdownMenu;
+        lxDropdown.registerDropdownMenu = registerDropdownMenu;
+        lxDropdown.registerDropdownToggle = registerDropdownToggle;
+        lxDropdown.toggle = toggle;
+        lxDropdown.uuid = LxUtils.generateUUID();
 
-        this.registerDropdown = function(element)
+        lxDropdown.effect = angular.isDefined(lxDropdown.effect) ? lxDropdown.effect : 'expand';
+        lxDropdown.escapeClose = angular.isDefined(lxDropdown.escapeClose) ? lxDropdown.escapeClose : true;
+        lxDropdown.hasToggle = false;
+        lxDropdown.isOpen = false;
+        lxDropdown.overToggle = angular.isDefined(lxDropdown.overToggle) ? lxDropdown.overToggle : false;
+        lxDropdown.position = angular.isDefined(lxDropdown.position) ? lxDropdown.position : 'left';
+
+        $scope.$on('lx-dropdown__open', function(_event, _params)
         {
-            dropdown = element;
-
-            $scope.position = angular.isDefined($scope.position) ? $scope.position : 'left';
-        };
-
-        this.registerDropdownMenu = function(element)
-        {
-            dropdownMenu = element;
-        };
-
-        this.toggle = function()
-        {
-            $scope.isOpened = !$scope.isOpened;
-        };
-
-        function linkList()
-        {
-            $scope.isDropped = false;
-
-            closeDropdownMenu();
-        }
-
-        function unlinkList()
-        {
-            $scope.isDropped = true;
-
-            dropdownMenu.appendTo('body');
-
-            $timeout(function()
+            if (_params.uuid === lxDropdown.uuid && !lxDropdown.isOpen)
             {
-                setDropdownMenuCss();
+                LxDropdownService.closeActiveDropdown();
+                LxDropdownService.registerActiveDropdownUuid(lxDropdown.uuid);
+
+                registerDropdownToggle(angular.element(_params.target));
                 openDropdownMenu();
-            });
-        }
-
-        function fromTop(toTop)
-        {
-            if (angular.isUndefined($scope.overToggle) && angular.isDefined($scope.fromTop))
-            {
-                return $scope.fromTop === 'true';
-            }
-
-            if ($scope.overToggle === 'true')
-            {
-                return !toTop;
-            }
-            else
-            {
-                return toTop;
-            }
-        }
-
-        function setDropdownMenuCss()
-        {
-            var windowScrollTop = angular.element($window).scrollTop();
-            var dropdownMenuWidth = dropdownMenu.outerWidth();
-            dropdownMenuHeight = dropdownMenu.outerHeight();
-            var origin = {
-                x: dropdown.offset().left,
-                y: (dropdown.offset().top - windowScrollTop) + dropdown.outerHeight() // dropdown is the button at the moment
-            };
-            var width = dropdownMenuWidth;
-            var height, bottomOffset, topOffset;
-
-            if (angular.isDefined($scope.width))
-            {
-                if ($scope.width === 'full')
-                {
-                    width = dropdown.outerWidth();
-                }
-                else
-                {
-                    width = dropdown.outerWidth() + parseInt($scope.width);
-                }
-            }
-
-            if ($scope.position === 'right')
-            {
-                origin.x = $window.innerWidth - (dropdown.offset().left + dropdown.outerWidth());
-            }
-            else if ($scope.position === 'center')
-            {
-                origin.x = dropdown.offset().left + (dropdown.outerWidth() - width) / 2;
-            }
-
-            if (origin.y + dropdownMenuHeight >= $window.innerHeight && origin.y - dropdownMenuHeight > 0)
-            { // To top
-                bottomOffset = fromTop(true) ? dropdown.outerHeight() : 0;
-
-                if (bottomOffset && origin.y - bottomOffset - dropdownMenuHeight <= 0)
-                {
-                    height = origin.y - bottomOffset - 8;
-                }
-
-                dropdownMenu.css(
-                {
-                    left: $scope.position !== 'right' ? origin.x : undefined,
-                    right: $scope.position === 'right' ? origin.x : undefined,
-                    bottom: $window.innerHeight - origin.y + bottomOffset - windowScrollTop,
-                    width: width,
-                    height: height
-                });
-            }
-            else if (origin.y + dropdownMenuHeight < $window.innerHeight)
-            { // To bottom
-                topOffset = fromTop(false) ? -dropdown.outerHeight() : 0;
-
-                dropdownMenu.css(
-                {
-                    left: $scope.position !== 'right' ? origin.x : undefined,
-                    right: $scope.position === 'right' ? origin.x : undefined,
-                    top: origin.y + topOffset + windowScrollTop,
-                    width: width
-                });
-            }
-            else // Dropdown too big, check the biggest space between up or down and use it with a padding
-            {
-                if (origin.y > $window.innerHeight / 2) // Middle of the screen
-                { // To top
-                    bottomOffset = fromTop(true) ? dropdown.outerHeight() : 0;
-                    height = origin.y - 8;
-
-                    dropdownMenu.css(
-                    {
-                        left: $scope.position !== 'right' ? origin.x : undefined,
-                        right: $scope.position === 'right' ? origin.x : undefined,
-                        bottom: $window.innerHeight - origin.y + bottomOffset - windowScrollTop,
-                        width: width,
-                        height: height - bottomOffset
-                    });
-                }
-                else
-                { // To bottom
-                    topOffset = fromTop(false) ?  -dropdown.outerHeight() : 0;
-                    height = $window.innerHeight - origin.y - 8;
-
-                    dropdownMenu.css(
-                    {
-                        left: $scope.position !== 'right' ? origin.x : undefined,
-                        right: $scope.position === 'right' ? origin.x : undefined,
-                        top: origin.y + topOffset + windowScrollTop,
-                        width: width,
-                        height: height - topOffset
-                    });
-                }
-            }
-        }
-
-        function openDropdownMenu()
-        {
-            var width = dropdownMenu.outerWidth();
-            var height = dropdownMenu.outerHeight();
-
-            dropdownMenu.css({
-                width: 0,
-                height: 0,
-                opacity: 1
-            });
-
-            dropdownMenu.find('.dropdown-dropdownMenu__content').css({
-                width: width,
-                height: height
-            });
-
-            dropdownMenu.velocity({
-                width: width
-            }, {
-                duration: 200,
-                easing: 'easeOutQuint',
-                queue: false
-            });
-
-            dropdownMenu.velocity({
-                height: height
-            }, {
-                duration: 500,
-                easing: 'easeOutQuint',
-                queue: false,
-                complete: function()
-                {
-                    if (height === dropdownMenuHeight)
-                    {
-                        dropdownMenu.css({ height: 'auto' });
-                    }
-                    else
-                    {
-                        dropdownMenu.css({ overflow: 'auto' });
-                    }
-
-                    if (!angular.isDefined($scope.width))
-                    {
-                        dropdownMenu.css({ width: 'auto' });
-                    }
-
-                    dropdownMenu.find('.dropdown-menu__content').removeAttr('style');
-                }
-            });
-
-            dropdown.addClass('dropdown--is-active');
-        }
-
-        function closeDropdownMenu()
-        {
-            dropdownMenu.velocity({
-                width: 0,
-                height: 0,
-            }, {
-                duration: 200,
-                easing: 'easeOutQuint',
-                complete: function()
-                {
-                    dropdownMenu
-                        .appendTo(dropdown)
-                        .removeAttr('style');
-
-                    dropdown.removeClass('dropdown--is-active');
-                }
-            });
-        }
-
-        $scope.$watch('isOpened', function(isOpened)
-        {
-            if (isOpened)
-            {
-                unlinkList();
-                LxDropdownService.open($scope);
-            }
-            else
-            {
-                linkList();
-                LxDropdownService.close($scope);
             }
         });
 
-        angular.element($window).bind('resize, scroll', function()
+        $scope.$on('lx-dropdown__close', function(_event, _params)
         {
-            if ($scope.isDropped)
+            if (_params.uuid === lxDropdown.uuid && lxDropdown.isOpen)
             {
-                setDropdownMenuCss();
+                closeDropdownMenu();
             }
-        });
-
-        $scope.$on('$locationChangeSuccess', function()
-        {
-            $scope.isOpened = false;
         });
 
         $scope.$on('$destroy', function()
         {
-            dropdownMenu.remove();
-            LxDropdownService.close($scope);
+            $timeout.cancel(timer);
         });
-    }])
-    .directive('lxDropdown', function()
-    {
-        return {
-            restrict: 'E',
-            controller: 'LxDropdownController',
-            templateUrl: 'dropdown.html',
-            transclude: true,
-            replace: true,
-            scope: {
-                position: '@',
-                width: '@',
-                fromTop: '@',
-                overToggle: '@'
-            },
-            link: function(scope, element, attrs, ctrl)
+
+        ////////////
+
+        function closeDropdownMenu()
+        {
+            LxDropdownService.resetActiveDropdownUuid();
+
+            var velocityProperties;
+            var velocityEasing;
+
+            angular.element('body').removeClass('no-scroll-dropdown-' + lxDropdown.uuid);
+
+            dropdownMenu.css(
             {
-                ctrl.registerDropdown(element);
+                overflow: 'hidden'
+            });
+
+            if (lxDropdown.effect === 'expand')
+            {
+                velocityProperties = {
+                    width: 0,
+                    height: 0
+                };
+
+                velocityEasing = 'easeOutQuint';
             }
-        };
-    })
-    .directive('lxDropdownToggle', function()
+            else if (lxDropdown.effect === 'fade')
+            {
+                velocityProperties = {
+                    opacity: 0
+                };
+
+                velocityEasing = 'linear';
+            }
+
+            dropdownMenu.velocity(velocityProperties,
+            {
+                duration: 200,
+                easing: velocityEasing,
+                complete: function()
+                {
+                    $element.find('.dropdown').removeClass('dropdown--is-open');
+
+                    dropdownMenu
+                        .removeAttr('style')
+                        .removeClass('dropdown-menu--is-open')
+                        .appendTo($element.find('.dropdown'));
+
+                    $scope.$apply(function()
+                    {
+                        lxDropdown.isOpen = false;
+
+                        if (lxDropdown.escapeClose)
+                        {
+                            LxEventSchedulerService.unregister(idEventScheduler);
+                            idEventScheduler = undefined;
+                        }
+                    });
+                }
+            });
+        }
+
+        function openDropdownMenu()
+        {
+            LxDepthService.register();
+
+            lxDropdown.isOpen = true;
+
+            $element.find('.dropdown').addClass('dropdown--is-open');
+
+            dropdownMenu
+                .addClass('dropdown-menu--is-open')
+                .css('z-index', LxDepthService.getDepth())
+                .appendTo('body');
+
+            if (lxDropdown.escapeClose)
+            {
+                idEventScheduler = LxEventSchedulerService.register('keyup', onKeyUp);
+            }
+
+            timer = $timeout(function()
+            {
+                var enoughtHeight = true;
+                var availableHeight = setDropdownMenuCss();
+                var width = dropdownMenu.outerWidth();
+                var height = dropdownMenu.outerHeight();
+
+                if (availableHeight < height)
+                {
+                    enoughtHeight = false;
+                    height = availableHeight;
+
+                    angular.element('body').addClass('no-scroll-dropdown-' + lxDropdown.uuid);
+                }
+
+                if (lxDropdown.effect === 'expand')
+                {
+                    dropdownMenu.css(
+                    {
+                        width: 0,
+                        height: 0,
+                        opacity: 1,
+                        overflow: 'hidden'
+                    });
+
+                    dropdownMenu.find('.dropdown-menu__content').css(
+                    {
+                        width: width,
+                        height: height
+                    });
+
+                    dropdownMenu.velocity(
+                    {
+                        width: width
+                    },
+                    {
+                        duration: 200,
+                        easing: 'easeOutQuint',
+                        queue: false
+                    });
+
+                    dropdownMenu.velocity(
+                    {
+                        height: height
+                    },
+                    {
+                        duration: 500,
+                        easing: 'easeOutQuint',
+                        queue: false,
+                        complete: function()
+                        {
+                            dropdownMenu.css(
+                            {
+                                overflow: 'auto'
+                            });
+
+                            if (enoughtHeight)
+                            {
+                                dropdownMenu.css(
+                                {
+                                    height: 'auto'
+                                });
+                            }
+
+                            if (angular.isUndefined(lxDropdown.width))
+                            {
+                                dropdownMenu.css(
+                                {
+                                    width: 'auto'
+                                });
+                            }
+
+                            dropdownMenu.find('.dropdown-menu__content').removeAttr('style');
+                        }
+                    });
+                }
+                else if (lxDropdown.effect === 'fade')
+                {
+                    dropdownMenu.velocity(
+                    {
+                        opacity: 1,
+                    },
+                    {
+                        duration: 200,
+                        easing: 'linear',
+                        queue: false
+                    });
+                }
+            });
+        }
+
+        function onKeyUp(_event)
+        {
+            if (_event.keyCode == 27)
+            {
+                closeDropdownMenu();
+            }
+
+            _event.stopPropagation();
+        }
+
+        function registerDropdownMenu(_dropdownMenu)
+        {
+            dropdownMenu = _dropdownMenu;
+        }
+
+        function registerDropdownToggle(_dropdownToggle)
+        {
+            dropdownToggle = _dropdownToggle;
+        }
+
+        function setDropdownMenuCss()
+        {
+            var windowWidth = $window.innerWidth;
+            var windowHeight = $window.innerHeight;
+            var dropdownToggleWidth = dropdownToggle.outerWidth();
+            var dropdownToggleHeight = dropdownToggle.outerHeight();
+            var dropdownToggleTop = dropdownToggle.offset().top - angular.element($window).scrollTop();
+            var dropdownMenuTopAvailable;
+            var dropdownMenuBottomAvailable;
+            var dropdownMenuWidth;
+            var dropdownMenuLeft;
+            var dropdownMenuRight;
+
+            if (lxDropdown.overToggle)
+            {
+                dropdownMenuTopAvailable = dropdownToggleTop + dropdownToggleHeight;
+                dropdownMenuBottomAvailable = windowHeight - dropdownToggleTop;
+            }
+            else
+            {
+                dropdownMenuTopAvailable = dropdownToggleTop;
+                dropdownMenuBottomAvailable = windowHeight - (dropdownToggleTop + dropdownToggleHeight);
+            }
+
+            if (angular.isDefined(lxDropdown.width))
+            {
+                if (lxDropdown.width.indexOf('%') > -1)
+                {
+                    dropdownMenuWidth = dropdownToggleWidth * (lxDropdown.width.slice(0, -1) / 100);
+                }
+                else
+                {
+                    dropdownMenuWidth = lxDropdown.width;
+                }
+            }
+            else
+            {
+                dropdownMenuWidth = 'auto';
+            }
+
+            if (lxDropdown.position === 'left')
+            {
+                dropdownMenuLeft = dropdownToggle.offset().left;
+                dropdownMenuRight = 'auto';
+            }
+            else if (lxDropdown.position === 'right')
+            {
+                dropdownMenuLeft = 'auto';
+                dropdownMenuRight = windowWidth - dropdownToggle.offset().left - dropdownToggleWidth;
+            }
+            else if (lxDropdown.position === 'center')
+            {
+                dropdownMenuLeft = (dropdownToggle.offset().left + (dropdownToggleWidth / 2)) - (dropdownMenuWidth / 2);
+                dropdownMenuRight = 'auto';
+            }
+
+            dropdownMenu.css(
+            {
+                left: dropdownMenuLeft,
+                right: dropdownMenuRight,
+                width: dropdownMenuWidth
+            });
+
+            if (dropdownMenuTopAvailable > dropdownMenuBottomAvailable)
+            {
+                dropdownMenu.css(
+                {
+                    bottom: lxDropdown.overToggle ? (windowHeight - dropdownToggle.offset().top - dropdownToggleHeight) : (windowHeight - dropdownToggle.offset().top + ~~lxDropdown.offset)
+                });
+
+                return dropdownMenuTopAvailable;
+            }
+            else
+            {
+                dropdownMenu.css(
+                {
+                    top: lxDropdown.overToggle ? dropdownToggle.offset().top : (dropdownToggle.offset().top + dropdownToggleHeight + ~~lxDropdown.offset)
+                });
+
+                return dropdownMenuBottomAvailable;
+            }
+        }
+
+        function toggle()
+        {
+            if (!lxDropdown.isOpen)
+            {
+                openDropdownMenu();
+            }
+            else
+            {
+                closeDropdownMenu();
+            }
+        }
+    }
+
+    lxDropdownToggle.$inject = ['$timeout', 'LxDropdownService'];
+
+    function lxDropdownToggle($timeout, LxDropdownService)
     {
         return {
             restrict: 'AE',
-            require: '^lxDropdown',
             templateUrl: 'dropdown-toggle.html',
+            require: '^lxDropdown',
+            scope: true,
+            link: link,
             replace: true,
-            transclude: true,
-            link: function(scope, element, attrs, ctrl)
-            {
-                element.bind('click', function(event)
-                {
-                    event.stopPropagation();
+            transclude: true
+        };
 
+        function link(scope, element, attrs, ctrl)
+        {
+            var timer1;
+            var timer2;
+
+            ctrl.hasToggle = true;
+            ctrl.registerDropdownToggle(element);
+
+            element.on(ctrl.hover ? 'mouseenter' : 'click', function(_event)
+            {
+                if (!ctrl.hover)
+                {
+                    _event.stopPropagation();
+                }
+
+                LxDropdownService.closeActiveDropdown();
+                LxDropdownService.registerActiveDropdownUuid(ctrl.uuid);
+
+                if (ctrl.hover)
+                {
+                    ctrl.mouseOnToggle = true;
+
+                    if (!ctrl.isOpen)
+                    {
+                        timer1 = $timeout(function()
+                        {
+                            scope.$apply(function()
+                            {
+                                ctrl.openDropdownMenu();
+                            });
+                        }, ctrl.hoverDelay);
+                    }
+                }
+                else
+                {
                     scope.$apply(function()
                     {
                         ctrl.toggle();
                     });
+                }
+            });
+
+            if (ctrl.hover)
+            {
+                element.on('mouseleave', function()
+                {
+                    ctrl.mouseOnToggle = false;
+
+                    $timeout.cancel(timer1);
+
+                    timer2 = $timeout(function()
+                    {
+                        if (!ctrl.mouseOnMenu)
+                        {
+                            scope.$apply(function()
+                            {
+                                ctrl.closeDropdownMenu();
+                            });
+                        }
+                    }, ctrl.hoverDelay);
                 });
             }
-        };
-    })
-    .directive('lxDropdownMenu', function()
+
+            scope.$on('$destroy', function()
+            {
+                element.off();
+
+                if (ctrl.hover)
+                {
+                    $timeout.cancel(timer1);
+                    $timeout.cancel(timer2);
+                }
+            });
+        }
+    }
+
+    lxDropdownMenu.$inject = ['$timeout'];
+
+    function lxDropdownMenu($timeout)
     {
         return {
             restrict: 'E',
-            require: '^lxDropdown',
             templateUrl: 'dropdown-menu.html',
-            transclude: true,
+            require: ['lxDropdownMenu', '^lxDropdown'],
+            scope: true,
+            link: link,
+            controller: LxDropdownMenuController,
+            controllerAs: 'lxDropdownMenu',
+            bindToController: true,
             replace: true,
-            link: function(scope, element, attrs, ctrl)
-            {
-                ctrl.registerDropdownMenu(element);
-                element.on('click', function(event)
-                {
-                    event.stopPropagation();
+            transclude: true
+        };
 
-                    scope.$apply(function()
+        function link(scope, element, attrs, ctrls)
+        {
+            var timer;
+
+            ctrls[1].registerDropdownMenu(element);
+            ctrls[0].setParentController(ctrls[1]);
+
+            if (ctrls[1].hover)
+            {
+                element.on('mouseenter', function()
+                {
+                    ctrls[1].mouseOnMenu = true;
+                });
+
+                element.on('mouseleave', function()
+                {
+                    ctrls[1].mouseOnMenu = false;
+
+                    timer = $timeout(function()
                     {
-                        ctrl.toggle();
-                    });
+                        if (!ctrls[1].mouseOnToggle)
+                        {
+                            scope.$apply(function()
+                            {
+                                ctrls[1].closeDropdownMenu();
+                            });
+                        }
+                    }, ctrls[1].hoverDelay);
                 });
             }
-        };
-    })
-    .directive('lxDropdownFilter', ['$timeout', function($timeout)
+
+            scope.$on('$destroy', function()
+            {
+                if (ctrls[1].hover)
+                {
+                    element.off();
+                    $timeout.cancel(timer);
+                }
+            });
+        }
+    }
+
+    function LxDropdownMenuController()
+    {
+        var lxDropdownMenu = this;
+
+        lxDropdownMenu.setParentController = setParentController;
+
+        ////////////
+
+        function setParentController(_parentCtrl)
+        {
+            lxDropdownMenu.parentCtrl = _parentCtrl;
+        }
+    }
+
+    lxDropdownFilter.$inject = ['$timeout'];
+
+    function lxDropdownFilter($timeout)
     {
         return {
             restrict: 'A',
-            link: function(scope, element)
-            {
-                element.bind('click', function(event)
-                {
-                    event.stopPropagation();
-                });
-
-                $timeout(function()
-                {
-                    element.find('input').focus();
-                }, 200);
-            }
+            link: link
         };
-    }]);
+
+        function link(scope, element)
+        {
+            var timer;
+
+            element.on('click', function(_event)
+            {
+                _event.stopPropagation();
+            });
+
+            timer = $timeout(function()
+            {
+                element.find('input').focus();
+            }, 200);
+
+            scope.$on('$destroy', function()
+            {
+                $timeout.cancel(timer);
+                element.off();
+            });
+        }
+    }
+})();

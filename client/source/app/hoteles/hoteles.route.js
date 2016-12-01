@@ -17,7 +17,7 @@
             {
                 state: 'root.hoteles',
                 config: {
-                    url: '/',
+                    url: '/hoteles',
                     views: {
                         'main@': {
                             templateUrl: 'static/hoteles/hoteles.html',

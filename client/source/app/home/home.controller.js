@@ -9,14 +9,8 @@
     /* @ngInject */
     function HomeController ($scope, $state, Proveedor) {
         var vm = this;
-        vm.x = {};
-        console.log('entrada');
-        vm.persona = 'Kat';
-        $scope.variable = 'Hola';
         vm.buscarDestinos = function () {
-            Proveedor.find(function (res) {
-                console.log(res);
-            });
+            localStorage.busqueda = vm.busqueda;
             $state.go('root.hoteles');
         };
     }

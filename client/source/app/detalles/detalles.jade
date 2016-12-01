@@ -1,0 +1,103 @@
+div.full-width(flex-container='column')
+    .card
+        div(flex-container='row')
+          .card__img.card__img--left(style='height: 160px')
+              img(ng-src="{{hotel.imagen}}" style='width: 250px;')
+          div(flex-item='', flex-container='column')
+            div(flex-item='')
+              .div(class='p+')
+                strong.text-left.fs-headline.display-block {{hotel.nombre}}
+                span.text-left.fs-subhead.tc-black-2.display-block {{hotel.ubicacion}}
+                span.text-left.fs-subhead.color-azul.display-block Desde: S/.{{hotel.precio}}
+                |¿Por qué lo usamos?
+                |Es un hecho establecido hace demasiado tiempo que un lector se distraerá con el contenido del texto de un sitio mientras que mira su diseño. El punto de usar Lorem Ipsum es que tiene una distribución más o menos normal de las letras, al contrario de usar textos como por ejemplo "Contenido aquí, contenido aquí". Estos textos hacen parecerlo un español que se puede leer. Muchos paquetes de autoedición y editores de páginas web usan el Lorem Ipsum como su texto por defecto, y al hacer una búsqueda de "Lorem Ipsum" va a dar por resultado muchos sitios web que usan este texto si se encuentran en estado de desarrollo. Muchas versiones han evolucionado a través de los años, algunas veces por accidente, otras veces a propósito (por ejemplo insertándole humor y cosas por el estilo).
+                form.mt(name='pagoForm' novalidate sv-form-val)
+                    div(flex-container='row' flex)
+                        div(flex-item='6')
+                            lx-text-field(label='Nombre')
+                                input(type='text'
+                                name='nombre'
+                                ng-model='user.nombre'
+                                mg-model-options = '{updateOn:"default "blur"}'
+                                sv-unique-username
+                                ng-minlength="3"
+                                ng-maxlength="50"
+                                required="error" )
+                        div(flex-item='6')
+                            lx-text-field(label='Apellido')
+                                input(type='text'
+                                name='nombre'
+                                ng-model='user.apellidos'
+                                mg-model-options = '{updateOn:"default "blur"}'
+                                sv-unique-username
+                                ng-minlength="3"
+                                ng-maxlength="50"
+                                required="error" )
+                    div(flex-container='row' flex)
+                        div(flex-item='6')
+                            lx-select(ng-model="pago.tipoTarjeta"
+                                    lx-allow-clear="true"
+                                    lx-choices="vm.listaTarjetas"
+                                    lx-label="Tipo de Tarjeta")
+                                lx-select-selected
+                                    |{{ $selected.desc }}
+                                lx-select-choices
+                                    |{{ $choice.desc }}
+                        div(flex-item='6')
+                            lx-text-field(label='Numero de tarjeta')
+                                input(type='text'
+                                name='nroTarjeta'
+                                ng-model='pago.nroTarjeta'
+                                mg-model-options = '{updateOn:"default "blur"}'
+                                sv-unique-username
+                                required="error" )
+                                
+                    div(flex-container='row' flex)
+                        div(flex-item='3')
+                            lx-select(ng-model="pago.mes"
+                                    lx-allow-clear="true"
+                                    lx-choices="vm.meses"
+                                    lx-label="Mes Vencimiento")
+                                lx-select-selected
+                                    |{{ $selected }}
+                                lx-select-choices
+                                    |{{ $choice }}
+                        div(flex-item='3')
+                            lx-select(ng-model="pago.ano"
+                                    lx-allow-clear="true"
+                                    lx-choices="vm.anos"
+                                    lx-label="Año Vencimiento")
+                                lx-select-selected
+                                    |{{ $selected }}
+                                lx-select-choices
+                                    |{{ $choice }}
+                        
+                    div(flex-container='column')
+                        div(flex-item='')
+                            lx-text-field(label='Correo electronico')
+                                input(type='email'
+                                ng-model='user.email'
+                                name='email'
+                                required)
+
+            .card__actions.text-left
+              a.btn.m-l-5.btn--blue.btn--l.btn--raised(ng-click="terminarReserva(hotel)") Finalizar Reserva
+lx-dialog(id="{{vm.dialogId}}")
+    lx-dialog-header
+        div(class="toolbar bgc-primary pl++")
+            span(class="toolbar__label tc-white fs-title")
+                |Terminando reserva...
+            div(class="toolbar__right")
+                lx-button(lx-size="l" lx-color="white" lx-type="icon" ng-click="vm.addPerson()")
+    lx-dialog-content
+        lx-tabs-panes(id="lorem-ipsum")
+            lx-tab-pane
+                div(class="p++" ng-if="!vm.termiado")
+                    |Terminando reserva en hotel:
+                    strong.text-left.fs-headline.display-block {{hotel.nombre}}
+                    lx-progress(lx-type="linear" lx-color="teal")
+                div(class="p++" ng-if="vm.termiado")
+                    |Reserva Terminada:
+                    strong.text-left.fs-headline.display-block {{hotel.nombre}}
+                    lx-button(lx-type="raised" lx-dialog-close) Finalizado
+                    

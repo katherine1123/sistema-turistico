@@ -1,19 +1,16 @@
-<div class="tabs tabs--theme-{{ linksTc }} tabs--layout-{{ layout }}"
-     ng-class="{ 'tabs--no-divider': noDivider }">
-    <ul class="tabs__links bgc-{{ linksBgc }} z-depth{{ zDepth }}">
-        <li ng-repeat="tab in getTabs()">
-            <a lx-tab-link
-               class="tabs-link"
-               ng-class="{ 'tabs-link--is-active': $index === activeTab }"
-               ng-click="setActiveTab($index)"
-               lx-ripple="{{ indicator }}">
-               <span ng-if="tab.icon !== undefined"><i class="mdi mdi-{{ tab.icon }}"></i></span>
-               <span ng-if="tab.icon === undefined">{{ tab.heading }}</i></span>
-            </a>
-        </li>
-    </ul>
-
-    <div class="tabs__panes" ng-transclude="1"></div>
-
-    <div class="tabs__indicator bgc-{{ indicator }}"></div>
+<div class="tabs tabs--layout-{{ lxTabs.layout }} tabs--theme-{{ lxTabs.theme }} tabs--color-{{ lxTabs.color }} tabs--indicator-{{ lxTabs.indicator }}">
+    <div class="tabs__links">
+        <a class="tabs__link"
+           ng-class="{ 'tabs__link--is-active': lxTabs.tabIsActive(tab.index),
+                       'tabs__link--is-disabled': tab.disabled }"
+           ng-repeat="tab in lxTabs.tabs"
+           ng-click="lxTabs.setActiveTab(tab)"
+           lx-ripple>
+           <i class="mdi mdi-{{ tab.icon }}" ng-if="tab.icon"></i>
+           <span ng-if="tab.label">{{ tab.label }}</span>
+        </a>
+    </div>
+    
+    <div class="tabs__panes" ng-if="lxTabs.viewMode === 'gather'" ng-transclude></div>
+    <div class="tabs__indicator"></div>
 </div>
