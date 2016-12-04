@@ -6771,9 +6771,261 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
       'LoopBackResource', 'LoopBackAuth', '$injector', '$q',
       function(LoopBackResource, LoopBackAuth, $injector, $q) {
         var R = LoopBackResource(
-        urlBase + "/Usuario/:id",
+        urlBase + "/Usuarios/:id",
           { 'id': '@id' },
           {
+
+            /**
+             * @ngdoc method
+             * @name lbServices.Usuario#prototype$__findById__accessTokens
+             * @methodOf lbServices.Usuario
+             *
+             * @description
+             *
+             * Find a related item by id for accessTokens.
+             *
+             * @param {Object=} parameters Request parameters.
+             *
+             *  - `id` – `{*}` - User id
+             *
+             *  - `fk` – `{*}` - Foreign key for accessTokens
+             *
+             * @param {function(Object,Object)=} successCb
+             *   Success callback with two arguments: `value`, `responseHeaders`.
+             *
+             * @param {function(Object)=} errorCb Error callback with one argument:
+             *   `httpResponse`.
+             *
+             * @returns {Object} An empty reference that will be
+             *   populated with the actual data once the response is returned
+             *   from the server.
+             *
+             * <em>
+             * (The remote method definition does not provide any description.
+             * This usually means the response is a `Usuario` object.)
+             * </em>
+             */
+            "prototype$__findById__accessTokens": {
+              params: {
+                'fk': '@fk',
+              },
+              url: urlBase + "/Usuarios/:id/accessTokens/:fk",
+              method: "GET",
+            },
+
+            /**
+             * @ngdoc method
+             * @name lbServices.Usuario#prototype$__destroyById__accessTokens
+             * @methodOf lbServices.Usuario
+             *
+             * @description
+             *
+             * Delete a related item by id for accessTokens.
+             *
+             * @param {Object=} parameters Request parameters.
+             *
+             *  - `id` – `{*}` - User id
+             *
+             *  - `fk` – `{*}` - Foreign key for accessTokens
+             *
+             * @param {function(Object,Object)=} successCb
+             *   Success callback with two arguments: `value`, `responseHeaders`.
+             *
+             * @param {function(Object)=} errorCb Error callback with one argument:
+             *   `httpResponse`.
+             *
+             * @returns {Object} An empty reference that will be
+             *   populated with the actual data once the response is returned
+             *   from the server.
+             *
+             * This method returns no data.
+             */
+            "prototype$__destroyById__accessTokens": {
+              params: {
+                'fk': '@fk',
+              },
+              url: urlBase + "/Usuarios/:id/accessTokens/:fk",
+              method: "DELETE",
+            },
+
+            /**
+             * @ngdoc method
+             * @name lbServices.Usuario#prototype$__updateById__accessTokens
+             * @methodOf lbServices.Usuario
+             *
+             * @description
+             *
+             * Update a related item by id for accessTokens.
+             *
+             * @param {Object=} parameters Request parameters.
+             *
+             *  - `id` – `{*}` - User id
+             *
+             *  - `fk` – `{*}` - Foreign key for accessTokens
+             *
+             * @param {Object} postData Request data.
+             *
+             * This method expects a subset of model properties as request parameters.
+             *
+             * @param {function(Object,Object)=} successCb
+             *   Success callback with two arguments: `value`, `responseHeaders`.
+             *
+             * @param {function(Object)=} errorCb Error callback with one argument:
+             *   `httpResponse`.
+             *
+             * @returns {Object} An empty reference that will be
+             *   populated with the actual data once the response is returned
+             *   from the server.
+             *
+             * <em>
+             * (The remote method definition does not provide any description.
+             * This usually means the response is a `Usuario` object.)
+             * </em>
+             */
+            "prototype$__updateById__accessTokens": {
+              params: {
+                'fk': '@fk',
+              },
+              url: urlBase + "/Usuarios/:id/accessTokens/:fk",
+              method: "PUT",
+            },
+
+            /**
+             * @ngdoc method
+             * @name lbServices.Usuario#prototype$__get__accessTokens
+             * @methodOf lbServices.Usuario
+             *
+             * @description
+             *
+             * Queries accessTokens of usuario.
+             *
+             * @param {Object=} parameters Request parameters.
+             *
+             *  - `id` – `{*}` - User id
+             *
+             *  - `filter` – `{object=}` -
+             *
+             * @param {function(Array.<Object>,Object)=} successCb
+             *   Success callback with two arguments: `value`, `responseHeaders`.
+             *
+             * @param {function(Object)=} errorCb Error callback with one argument:
+             *   `httpResponse`.
+             *
+             * @returns {Array.<Object>} An empty reference that will be
+             *   populated with the actual data once the response is returned
+             *   from the server.
+             *
+             * <em>
+             * (The remote method definition does not provide any description.
+             * This usually means the response is a `Usuario` object.)
+             * </em>
+             */
+            "prototype$__get__accessTokens": {
+              isArray: true,
+              url: urlBase + "/Usuarios/:id/accessTokens",
+              method: "GET",
+            },
+
+            /**
+             * @ngdoc method
+             * @name lbServices.Usuario#prototype$__create__accessTokens
+             * @methodOf lbServices.Usuario
+             *
+             * @description
+             *
+             * Creates a new instance in accessTokens of this model.
+             *
+             * @param {Object=} parameters Request parameters.
+             *
+             *  - `id` – `{*}` - User id
+             *
+             * @param {Object} postData Request data.
+             *
+             * This method expects a subset of model properties as request parameters.
+             *
+             * @param {function(Object,Object)=} successCb
+             *   Success callback with two arguments: `value`, `responseHeaders`.
+             *
+             * @param {function(Object)=} errorCb Error callback with one argument:
+             *   `httpResponse`.
+             *
+             * @returns {Object} An empty reference that will be
+             *   populated with the actual data once the response is returned
+             *   from the server.
+             *
+             * <em>
+             * (The remote method definition does not provide any description.
+             * This usually means the response is a `Usuario` object.)
+             * </em>
+             */
+            "prototype$__create__accessTokens": {
+              url: urlBase + "/Usuarios/:id/accessTokens",
+              method: "POST",
+            },
+
+            /**
+             * @ngdoc method
+             * @name lbServices.Usuario#prototype$__delete__accessTokens
+             * @methodOf lbServices.Usuario
+             *
+             * @description
+             *
+             * Deletes all accessTokens of this model.
+             *
+             * @param {Object=} parameters Request parameters.
+             *
+             *  - `id` – `{*}` - User id
+             *
+             * @param {function(Object,Object)=} successCb
+             *   Success callback with two arguments: `value`, `responseHeaders`.
+             *
+             * @param {function(Object)=} errorCb Error callback with one argument:
+             *   `httpResponse`.
+             *
+             * @returns {Object} An empty reference that will be
+             *   populated with the actual data once the response is returned
+             *   from the server.
+             *
+             * This method returns no data.
+             */
+            "prototype$__delete__accessTokens": {
+              url: urlBase + "/Usuarios/:id/accessTokens",
+              method: "DELETE",
+            },
+
+            /**
+             * @ngdoc method
+             * @name lbServices.Usuario#prototype$__count__accessTokens
+             * @methodOf lbServices.Usuario
+             *
+             * @description
+             *
+             * Counts accessTokens of usuario.
+             *
+             * @param {Object=} parameters Request parameters.
+             *
+             *  - `id` – `{*}` - User id
+             *
+             *  - `where` – `{object=}` - Criteria to match model instances
+             *
+             * @param {function(Object,Object)=} successCb
+             *   Success callback with two arguments: `value`, `responseHeaders`.
+             *
+             * @param {function(Object)=} errorCb Error callback with one argument:
+             *   `httpResponse`.
+             *
+             * @returns {Object} An empty reference that will be
+             *   populated with the actual data once the response is returned
+             *   from the server.
+             *
+             * Data properties:
+             *
+             *  - `count` – `{number=}` -
+             */
+            "prototype$__count__accessTokens": {
+              url: urlBase + "/Usuarios/:id/accessTokens/count",
+              method: "GET",
+            },
 
             /**
              * @ngdoc method
@@ -6809,7 +7061,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              * </em>
              */
             "create": {
-              url: urlBase + "/Usuario",
+              url: urlBase + "/Usuarios",
               method: "POST",
             },
 
@@ -6848,7 +7100,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              */
             "createMany": {
               isArray: true,
-              url: urlBase + "/Usuario",
+              url: urlBase + "/Usuarios",
               method: "POST",
             },
 
@@ -6886,7 +7138,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              * </em>
              */
             "upsert": {
-              url: urlBase + "/Usuario",
+              url: urlBase + "/Usuarios",
               method: "PUT",
             },
 
@@ -6924,7 +7176,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              * </em>
              */
             "replaceOrCreate": {
-              url: urlBase + "/Usuario/replaceOrCreate",
+              url: urlBase + "/Usuarios/replaceOrCreate",
               method: "POST",
             },
 
@@ -6961,7 +7213,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              * </em>
              */
             "upsertWithWhere": {
-              url: urlBase + "/Usuario/upsertWithWhere",
+              url: urlBase + "/Usuarios/upsertWithWhere",
               method: "POST",
             },
 
@@ -6993,7 +7245,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              *  - `exists` – `{boolean=}` -
              */
             "exists": {
-              url: urlBase + "/Usuario/:id/exists",
+              url: urlBase + "/Usuarios/:id/exists",
               method: "GET",
             },
 
@@ -7028,7 +7280,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              * </em>
              */
             "findById": {
-              url: urlBase + "/Usuario/:id",
+              url: urlBase + "/Usuarios/:id",
               method: "GET",
             },
 
@@ -7065,7 +7317,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              * </em>
              */
             "replaceById": {
-              url: urlBase + "/Usuario/:id/replace",
+              url: urlBase + "/Usuarios/:id/replace",
               method: "POST",
             },
 
@@ -7099,7 +7351,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              */
             "find": {
               isArray: true,
-              url: urlBase + "/Usuario",
+              url: urlBase + "/Usuarios",
               method: "GET",
             },
 
@@ -7132,7 +7384,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              * </em>
              */
             "findOne": {
-              url: urlBase + "/Usuario/findOne",
+              url: urlBase + "/Usuarios/findOne",
               method: "GET",
             },
 
@@ -7166,7 +7418,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              * Information related to the outcome of the operation
              */
             "updateAll": {
-              url: urlBase + "/Usuario/update",
+              url: urlBase + "/Usuarios/update",
               method: "POST",
             },
 
@@ -7199,7 +7451,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              * </em>
              */
             "deleteById": {
-              url: urlBase + "/Usuario/:id",
+              url: urlBase + "/Usuarios/:id",
               method: "DELETE",
             },
 
@@ -7231,7 +7483,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              *  - `count` – `{number=}` -
              */
             "count": {
-              url: urlBase + "/Usuario/count",
+              url: urlBase + "/Usuarios/count",
               method: "GET",
             },
 
@@ -7246,7 +7498,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              *
              * @param {Object=} parameters Request parameters.
              *
-             *  - `id` – `{*}` - PersistedModel id
+             *  - `id` – `{*}` - User id
              *
              * @param {Object} postData Request data.
              *
@@ -7268,7 +7520,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              * </em>
              */
             "prototype$updateAttributes": {
-              url: urlBase + "/Usuario/:id",
+              url: urlBase + "/Usuarios/:id",
               method: "PUT",
             },
 
@@ -7305,31 +7557,31 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              *  - `changes` – `{ReadableStream=}` -
              */
             "createChangeStream": {
-              url: urlBase + "/Usuario/change-stream",
+              url: urlBase + "/Usuarios/change-stream",
               method: "POST",
             },
 
             /**
              * @ngdoc method
-             * @name lbServices.Usuario#ingresar
+             * @name lbServices.Usuario#login
              * @methodOf lbServices.Usuario
              *
              * @description
              *
-             * <em>
-             * (The remote method definition does not provide any description.)
-             * </em>
+             * Login a user with username/email and password.
              *
              * @param {Object=} parameters Request parameters.
              *
-             *   This method does not accept any parameters.
-             *   Supply an empty object or omit this argument altogether.
+             *  - `include` – `{string=}` - Related objects to include in the response. See the description of return value for more details.
+             *   Default value: `user`.
+             *
+             *  - `rememberMe` - `boolean` - Whether the authentication credentials
+             *     should be remembered in localStorage across app/browser restarts.
+             *     Default: `true`.
              *
              * @param {Object} postData Request data.
              *
-             *  - `email` – `{string}` -
-             *
-             *  - `contrasena` – `{string}` -
+             * This method expects a subset of model properties as request parameters.
              *
              * @param {function(Object,Object)=} successCb
              *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -7341,14 +7593,188 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              *   populated with the actual data once the response is returned
              *   from the server.
              *
-             * <em>
-             * (The remote method definition does not provide any description.
-             * This usually means the response is a `Usuario` object.)
-             * </em>
+             * The response body contains properties of the AccessToken created on login.
+             * Depending on the value of `include` parameter, the body may contain additional properties:
+             *   - `user` - `U+007BUserU+007D` - Data of the currently logged in user. (`include=user`)
+             *
              */
-            "ingresar": {
-              url: urlBase + "/Usuario/ingresar",
+            "login": {
+              params: {
+                include: 'user',
+              },
+              interceptor: {
+                response: function(response) {
+                  var accessToken = response.data;
+                  LoopBackAuth.setUser(
+                    accessToken.id, accessToken.userId, accessToken.user);
+                  LoopBackAuth.rememberMe =
+                    response.config.params.rememberMe !== false;
+                  LoopBackAuth.save();
+                  return response.resource;
+                },
+              },
+              url: urlBase + "/Usuarios/login",
               method: "POST",
+            },
+
+            /**
+             * @ngdoc method
+             * @name lbServices.Usuario#logout
+             * @methodOf lbServices.Usuario
+             *
+             * @description
+             *
+             * Logout a user with access token.
+             *
+             * @param {Object=} parameters Request parameters.
+             *
+             *   This method does not accept any parameters.
+             *   Supply an empty object or omit this argument altogether.
+             *
+             * @param {Object} postData Request data.
+             *
+             *  - `access_token` – `{string}` - Do not supply this argument, it is automatically extracted from request headers.
+             *
+             * @param {function(Object,Object)=} successCb
+             *   Success callback with two arguments: `value`, `responseHeaders`.
+             *
+             * @param {function(Object)=} errorCb Error callback with one argument:
+             *   `httpResponse`.
+             *
+             * @returns {Object} An empty reference that will be
+             *   populated with the actual data once the response is returned
+             *   from the server.
+             *
+             * This method returns no data.
+             */
+            "logout": {
+              interceptor: {
+                response: function(response) {
+                  LoopBackAuth.clearUser();
+                  LoopBackAuth.clearStorage();
+                  return response.resource;
+                },
+                responseError: function(responseError) {
+                  LoopBackAuth.clearUser();
+                  LoopBackAuth.clearStorage();
+                  return responseError.resource;
+                },
+              },
+              url: urlBase + "/Usuarios/logout",
+              method: "POST",
+            },
+
+            /**
+             * @ngdoc method
+             * @name lbServices.Usuario#confirm
+             * @methodOf lbServices.Usuario
+             *
+             * @description
+             *
+             * Confirm a user registration with email verification token.
+             *
+             * @param {Object=} parameters Request parameters.
+             *
+             *  - `uid` – `{string}` -
+             *
+             *  - `token` – `{string}` -
+             *
+             *  - `redirect` – `{string=}` -
+             *
+             * @param {function(Object,Object)=} successCb
+             *   Success callback with two arguments: `value`, `responseHeaders`.
+             *
+             * @param {function(Object)=} errorCb Error callback with one argument:
+             *   `httpResponse`.
+             *
+             * @returns {Object} An empty reference that will be
+             *   populated with the actual data once the response is returned
+             *   from the server.
+             *
+             * This method returns no data.
+             */
+            "confirm": {
+              url: urlBase + "/Usuarios/confirm",
+              method: "GET",
+            },
+
+            /**
+             * @ngdoc method
+             * @name lbServices.Usuario#resetPassword
+             * @methodOf lbServices.Usuario
+             *
+             * @description
+             *
+             * Reset password for a user with email.
+             *
+             * @param {Object=} parameters Request parameters.
+             *
+             *   This method does not accept any parameters.
+             *   Supply an empty object or omit this argument altogether.
+             *
+             * @param {Object} postData Request data.
+             *
+             * This method expects a subset of model properties as request parameters.
+             *
+             * @param {function(Object,Object)=} successCb
+             *   Success callback with two arguments: `value`, `responseHeaders`.
+             *
+             * @param {function(Object)=} errorCb Error callback with one argument:
+             *   `httpResponse`.
+             *
+             * @returns {Object} An empty reference that will be
+             *   populated with the actual data once the response is returned
+             *   from the server.
+             *
+             * This method returns no data.
+             */
+            "resetPassword": {
+              url: urlBase + "/Usuarios/reset",
+              method: "POST",
+            },
+
+            /**
+             * @ngdoc method
+             * @name lbServices.Usuario#getCurrent
+             * @methodOf lbServices.Usuario
+             *
+             * @description
+             *
+             * Get data of the currently logged user. Fail with HTTP result 401
+             * when there is no user logged in.
+             *
+             * @param {function(Object,Object)=} successCb
+             *    Success callback with two arguments: `value`, `responseHeaders`.
+             *
+             * @param {function(Object)=} errorCb Error callback with one argument:
+             *    `httpResponse`.
+             *
+             * @returns {Object} An empty reference that will be
+             *   populated with the actual data once the response is returned
+             *   from the server.
+             */
+            'getCurrent': {
+              url: urlBase + "/Usuarios" + '/:id',
+              method: 'GET',
+              params: {
+                id: function() {
+                  var id = LoopBackAuth.currentUserId;
+                  if (id == null) id = '__anonymous__';
+                  return id;
+                },
+              },
+              interceptor: {
+                response: function(response) {
+                  LoopBackAuth.currentUserData = response.data;
+                  return response.resource;
+                },
+                responseError: function(responseError) {
+                  LoopBackAuth.clearUser();
+                  LoopBackAuth.clearStorage();
+                  return $q.reject(responseError);
+                },
+              },
+              __isGetCurrentUser__: true,
             },
           }
         );
@@ -7561,7 +7987,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              *
              * @param {Object=} parameters Request parameters.
              *
-             *  - `id` – `{*}` - PersistedModel id
+             *  - `id` – `{*}` - User id
              *
              * @param {Object} postData Request data.
              *
@@ -7584,6 +8010,47 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' &&
              */
         R["patchAttributes"] = R["prototype$updateAttributes"];
 
+        /**
+         * @ngdoc method
+         * @name lbServices.Usuario#getCachedCurrent
+         * @methodOf lbServices.Usuario
+         *
+         * @description
+         *
+         * Get data of the currently logged user that was returned by the last
+         * call to {@link lbServices.Usuario#login} or
+         * {@link lbServices.Usuario#getCurrent}. Return null when there
+         * is no user logged in or the data of the current user were not fetched
+         * yet.
+         *
+         * @returns {Object} A Usuario instance.
+         */
+        R.getCachedCurrent = function() {
+          var data = LoopBackAuth.currentUserData;
+          return data ? new R(data) : null;
+        };
+
+        /**
+         * @ngdoc method
+         * @name lbServices.Usuario#isAuthenticated
+         * @methodOf lbServices.Usuario
+         *
+         * @returns {boolean} True if the current user is authenticated (logged in).
+         */
+        R.isAuthenticated = function() {
+          return this.getCurrentId() != null;
+        };
+
+        /**
+         * @ngdoc method
+         * @name lbServices.Usuario#getCurrentId
+         * @methodOf lbServices.Usuario
+         *
+         * @returns {Object} Id of the currently logged-in user or null.
+         */
+        R.getCurrentId = function() {
+          return LoopBackAuth.currentUserId;
+        };
 
         /**
         * @ngdoc property

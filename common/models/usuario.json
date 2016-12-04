@@ -1,49 +1,23 @@
 {
     "name": "usuario",
-    "plural": "Usuario",
-    "base": "PersistedModel",
+    "plural": "Usuarios",
+    "base": "User",
     "idInjection": true,
-    "redefine": true,
     "options": {
         "validateUpsert": true
     },
     "properties": {
-        "id": {
-            "type": "number",
-            "required": true
-        },
         "nombre": {
             "type": "string",
-            "required": true,
-            "realm": true
+            "required": true
         },
-        "apellido_paterno": {
+        "apellidop": {
             "type": "string",
             "required": true
         },
-        "apellido_materno": {
+        "apellidom": {
             "type": "string",
             "required": true
-        },
-        "email": {
-            "type": "string",
-            "required": true,
-            "email": true
-        },
-        "fecha_nac": {
-            "type": "date",
-            "required": false
-        },
-        "telefono": {
-            "type": "number"
-        },
-        "tipo_usuario_id": {
-            "type": "number",
-            "default": 1
-        },
-        "contrasena": {
-            "type": "string",
-            "password": true
         }
     },
     "validations": [],

@@ -13,9 +13,13 @@
         var vm = this;
         $scope.user = {};
         vm.registrarUsuario = function () {
-            Usuario.create($scope.user, function (res) {
+            var obj = {username:$scope.user.email, email:$scope.user.email,
+                password: $scope.user.contrasena, nombre: $scope.user['nombre'],
+                apellidop: $scope.user['apellido_paterno'],
+                apellidom: $scope.user['apellido_materno']};
+            Usuario.create(obj, function (res) {
                 LxNotificationService.success('Se registro correctamente');
-                $state.go('app.login');
+                $state.go('root.login');
             });
         };
     }

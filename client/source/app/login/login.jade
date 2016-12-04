@@ -9,9 +9,9 @@
             p.tc-white {{vm.loginError.text}}
         .card__body(class="p++")
             lx-text-field(label="Email", fixed-label="true", icon="email")
-                input(type="email", ng-model="vm.credential.email", required, aio-focus-me="true")
+                input(type="email", ng-model="vm.credential.email", required)
             lx-text-field(label="Contraseña", fixed-label="true", icon="key")
-                input(type="password", ng-model="vm.credential.contrasena", required)
+                input(type="password", ng-model="vm.credential.password", required)
         .card__actions.text-center(class="p+")
             button.btn.btn--l.btn--blue.btn--raised.btn-login(type="submit",
                 ng-disabled="vm.loginForm.$invalid || vm.isRequest",

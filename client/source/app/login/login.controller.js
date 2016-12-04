@@ -15,17 +15,25 @@
             $state.go('root.registrar');
         };
         var _routeAfterLogin = 'root.hoteles';
+        vm.credential = {};
+        if (localStorage.credenciales) {
+            var credenciales = JSON.parse(localStorage.credenciales);
+            vm.credential.email = credenciales.email;
+            vm.credential.password = credenciales.password;
+        }
 
         function login (credential) {
             if (vm.loginForm.$invalid) {
                 return;
             }
             vm.isRequest = true;
-            Usuario.ingresar(vm.credential, _success, _error);
+            Usuario.login(JSON.stringify(vm.credential), _success, _error);
+
             function _success (data) {
+                console.log(data);
                 vm.loginError = null;
-                localStorage.usuario = JSON.stringify(data);
-                LxNotificationService.success('Bienvenido ' + data.nombre);
+                localStorage.usuario = JSON.stringify(data.user);
+                LxNotificationService.success('Bienvenido ' + data.user.nombre);
                 // user was redirect to login page
                 if ($state.prev) {
                     $state.go($state.prev.state, $state.prev.params);
@@ -36,7 +44,7 @@
             }
 
             function _error (message) {
-                _setError('error', message);
+                _setError('error', 'Usuario invalido');
                 vm.isRequest = false;
             }
         }

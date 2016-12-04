@@ -13,7 +13,7 @@ module.exports = function (gulp, config, $, args) {
     gulp.task('copy:fonts', ['clean:fonts'], function () {
         config.fn.log('Copying all fonts files');
 
-        return copy(config.resource.fonts, config.build.dev + 'static/fonts');
+        return copy(config.resource.fonts, config.build.dev + 'static/vendor/lumx/dist/fonts');
     });
 
     // Copy javascript files
@@ -59,7 +59,8 @@ module.exports = function (gulp, config, $, args) {
 
     // Copy fonts files to prod folder
     gulp.task('copy:fonts:prod', function () {
-        return copy(config.build.dev + 'static/fonts/**/*', config.build.prod + 'static/fonts');
+        return copy(config.build.dev + 'static/fonts/**/*', config.build.prod +
+        'static/vendor/lumx/dist/fonts');
     });
 
     ////////

@@ -16,6 +16,16 @@ module.exports = function (gulp, config, $, args) {
             'copy:images:prod', 'copy:fonts:prod', 'clean:temp', done);
     });
 
+    var rename = require('gulp-rename');
+    var loopbackAngular = require('gulp-loopback-sdk-angular');
+
+    gulp.task('lb-ng', function () {
+        return gulp.src('./server/server.js')
+        .pipe(loopbackAngular())
+        .pipe(rename('lb-services.js'))
+        .pipe(gulp.dest('./client/source/app/core'));
+    });
+
     gulp.task('optimize', function () {
         config.fn.log('Optimizing the js, css, and html');
 
