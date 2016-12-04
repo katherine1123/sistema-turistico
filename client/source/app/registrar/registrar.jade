@@ -1,0 +1,66 @@
+
+div.full-width(flex-container='column')
+    .card
+        div(class='p+')
+            span.display-block.fs-title.mb Registrar usuario
+            .divider.divider--dark
+            form.mt(name='registrarForm' novalidate sv-form-val)
+                div(flex-container='row' flex)
+                    div(flex-item='')
+                        lx-text-field(label='Nombre')
+                            input(type='text'
+                            name='nombre'
+                            ng-model='user.nombre'
+                            mg-model-options = '{updateOn:"default "blur"}'
+                            sv-unique-username
+                            ng-minlength="3"
+                            ng-maxlength="50"
+                            required="error" )
+                div(flex-container='row' flex)
+                    div(flex-item='6')
+                        lx-text-field(label='Apellido Paterno')
+                            input(type='text'
+                            name='apePat'
+                            ng-model='user.apellido_paterno'
+                            mg-model-options = '{updateOn:"default "blur"}'
+                            sv-unique-username
+                            ng-minlength="3"
+                            ng-maxlength="50"
+                            required="error" )
+                    div(flex-item='6')
+                        lx-text-field(label='Apellido Materno')
+                            input(type='text'
+                            name='apeMat'
+                            ng-model='user.apellido_materno'
+                            mg-model-options = '{updateOn:"default "blur"}'
+                            sv-unique-username
+                            ng-minlength="3"
+                            ng-maxlength="50"
+                            required="error" )
+                div(flex-container='column')
+                    div(flex-item='')
+                        lx-text-field(label='Correo electronico')
+                            input(type='email'
+                            ng-model='user.email'
+                            name='email'
+                            required)
+                div(flex-container='row'  class="mb+")
+                    div(flex-item='6')
+                        lx-text-field(label='Contraseña')
+                            input(type='password'
+                            ng-minlength="6"
+                            ng-maxlength="50"
+                            ng-model='user.contrasena'
+                            name='password' required)
+                    div(flex-item='6')
+                        lx-text-field(label='Repita la contraseña')
+                            input(type='password'
+                            ng-minlength="6"
+                            ng-maxlength="50"
+                            ng-model='user.contrasena2'
+                            name='password' required)
+            div(flex-container='column' flex-align='center start')
+                lx-checkbox(ng-model="user.check") Acepto los 
+                    a(href='#') terminios y condiciones
+        div(flex-item='4' class='p+' flex-container="column" flex-align="space-between center" )
+            lx-button(lx-type="raised" ng-disabled="registrarForm.$invalid || user.contrasena != user.contrasena2 || !user.check" lx-color="blue" ng-click="vm.registrarUsuario()") Registrarme

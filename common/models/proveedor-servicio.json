@@ -1,0 +1,37 @@
+{
+  "name": "proveedor-servicio",
+  "plural": "ProveedorServicios",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "number",
+      "required": true
+    },
+    "tipo_servicio_id": {
+      "type": "number",
+      "required": true
+    },
+    "proveedor_id": {
+      "type": "number",
+      "required": true
+    },
+    "precio": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "proveedor": {
+      "type": "hasMany",
+      "model": "proveedor-info",
+      "foreignKey": "id"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

@@ -38,5 +38,29 @@
   "proveedor": {
     "dataSource": "stmysql",
     "public": true
+  },
+  "region": {
+    "dataSource": "stmysql",
+    "public": true
+  },
+  "proveedor-region": {
+    "dataSource": "stmysql",
+    "public": true
+  },
+  "proveedor-servicio": {
+    "dataSource": "stmysql",
+    "public": true
+  },
+  "tipo-servicio": {
+    "dataSource": "stmysql",
+    "public": true
+  },
+  "proveedor-info": {
+    "dataSource": "stmysql",
+    "public": true
+  },
+  "usuario": {
+    "dataSource": "stmysql",
+    "public": true
   }
 }
