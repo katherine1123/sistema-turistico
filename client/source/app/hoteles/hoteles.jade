@@ -2,7 +2,7 @@
     .card.text-center(class="p+++")
         form.mt(name='signUpForm' novalidate sv-form-val)
             div(flex-container='row')
-                div(flex-item='8')
+                div(flex-item='10')
                     lx-text-field(label='Ciudad de busqueda')
                         input(type='text'
                         name='busqueda'
@@ -12,8 +12,8 @@
                         ng-minlength="2"
                         ng-maxlength="200"
                         required="error" )
-                div(flex-item='4' class='p+')
-                    a.btn.btn--blue.btn--l.btn--raised(class="", ui-sref="root.login", lx-ripple="white") Buscar
+                div(flex-item='2' class="p+")
+                    a.btn.btn--blue.btn--l.btn--raised(class="", lx-ripple="white") Buscar
     br                
     .card.text-center(class="p+++" ng-repeat="hotel in listaHoteles")
         div
@@ -30,4 +30,3 @@
                   .card__actions.text-left
                     a.btn.btn--blue.btn--l.btn--raised(ng-click="verHotel(hotel)") Ver detalles
                     a.btn.m-l-5.btn--blue.btn--l.btn--raised(ng-click="reservar(hotel)") Reservar
-

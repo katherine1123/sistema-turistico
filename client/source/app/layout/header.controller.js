@@ -23,6 +23,9 @@
             $rootScope.$on(Event.AUTH_SESSION_VALID, _updateHeader);
         }
 
+        if (localStorage.usuario) {
+            $rootScope.$broadcast(Event.AUTH_LOGIN, JSON.parse(localStorage.usuario));
+        }
         function _updateHeader (e, userInfo) {
             if (userInfo) {
                 vm.isLoggedIn = true;

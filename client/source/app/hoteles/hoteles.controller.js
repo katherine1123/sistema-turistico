@@ -16,6 +16,9 @@
         ProveedorInfo.listarUsuarios(function (res) {
             $scope.listaHoteles = res;
         });
-        vm.busqueda = localStorage.busqueda;
+        if (localStorage.busqueda && localStorage.busqueda !== 'undefined') {
+            vm.busqueda = localStorage.busqueda;
+        }
+
     }
 })();

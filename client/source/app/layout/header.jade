@@ -10,14 +10,14 @@
             .toolbar__right
                 a.btn.btn--l.btn--icon.header-login(ui-sref="root.login", lx-ripple="white", ng-if="!vm.isLoggedIn")
                     i.mdi.mdi-login
-                span.header-user-name.hide-sm(ng-if="vm.isLoggedIn") {{vm.userInfo.name}}
+                span.header-user-name.hide-sm(ng-if="vm.isLoggedIn") {{vm.userInfo.nombre}} {{vm.userInfo.apellidop}}
                 lx-dropdown.header-dropdown(position="right", from-top, ng-if="vm.isLoggedIn")
-                    button.btn.btn--xl.btn--white.btn--icon.dropdown-toggle(lx-ripple, lx-dropdown-toggle)
+                    button.btn.btn--xl.btn--icon.dropdown-toggle(lx-ripple, lx-dropdown-toggle)
                         i.mdi.mdi-dots-vertical
                     lx-dropdown-menu
                         ul.header-dropdown-menu
                             li.hide-gt-sm.text-center.tc-grey-500(ng-if="vm.isLoggedIn")
-                                span {{vm.userInfo.name}}
+                                span {{vm.userInfo.nombre}}
                             li.hide-gt-sm.dropdown-divider
                             li
                                 a.dropdown-link.logout-link(ui-sref="root.login({action: 'logout'})")

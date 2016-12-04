@@ -5,15 +5,27 @@
             .module('app.login')
             .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['$state', '$timeout', 'Usuario', 'LxNotificationService'];
+    LoginController.$inject = ['$state', '$timeout', 'Usuario', 'LxNotificationService',
+        '$rootScope', 'Event'];
     /* @ngInject */
-    function LoginController ($state, $timeout, Usuario, LxNotificationService) {
+    function LoginController ($state, $timeout, Usuario, LxNotificationService,
+        $rootScope, Event) {
         var vm = this;
 
         vm.login = login;
         vm.irRegistrarse = function () {
             $state.go('root.registrar');
         };
+        var action = $state.params.action;
+
+        function logout () {
+            localStorage.clear();
+            $rootScope.$broadcast(Event.AUTH_LOGOUT);
+        }
+
+        if (action === 'logout') {
+            logout();
+        }
         var _routeAfterLogin = 'root.hoteles';
         vm.credential = {};
         if (localStorage.credenciales) {
@@ -30,7 +42,7 @@
             Usuario.login(JSON.stringify(vm.credential), _success, _error);
 
             function _success (data) {
-                console.log(data);
+                $rootScope.$broadcast(Event.AUTH_LOGIN, data.user);
                 vm.loginError = null;
                 localStorage.usuario = JSON.stringify(data.user);
                 LxNotificationService.success('Bienvenido ' + data.user.nombre);
